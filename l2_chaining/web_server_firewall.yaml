@@ -13,6 +13,15 @@ parameters:
     type: string
     description : Name of a KeyPair to enable SSH access to the instance
 
+  floating_net_id:
+    type: string
+    description: Network ID of external network
+    constraints:
+      - length: { min: 36, max: 36 }
+        description: Network UUID's must be 36 characters long (including dashes)
+      - allowed_pattern: '[a-f0-9\-]*'
+        description: Network UUID's must be composed of hexadecimals and dashes
+
   instance_type:
     type: string
     description: Instance type for web and DB servers
@@ -153,6 +162,17 @@ resources:
             db_password: { get_param: db_password }
             db_ipaddr: { get_param: db_ipaddr }
 
+  FloatingIP:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: floating_net_id }
+
+  FloatingIPAssociation:
+    type: OS::Nova::FloatingIPAssociation
+    properties:
+      floating_ip: { get_resource: FloatingIP }
+      server_id: { get_resource: WebServer }
+
   Firewall:
     type: OS::Nova::Server
     properties:
@@ -197,7 +217,7 @@ resources:
 outputs:
   WebServ_IP:
     description: IP address of Web server
-    value: { get_attr: [ WebServer, first_address ] }
+    value: { get_attr: [ FloatingIP, floating_ip_address ] }
 
   Firewall_IP:
     description: IP address of the firewall server

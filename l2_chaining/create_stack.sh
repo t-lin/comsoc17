@@ -32,6 +32,8 @@ if [[ $MATCH == 0 ]]; then
     exit 0
 fi
 
+EXT_NET_ID=`neutron --os-region-name ${REGION1} net-list | grep ext_net | awk '{print $2}'`
+
 # Fingerprint of public key
 if [[ ! -f ${HOME}/.ssh/id_rsa.pub ]]; then
     echo "ERROR: No public key found. Try running: ssh-keygen"
@@ -72,8 +74,8 @@ fi
 # Now deploy the Heat stack
 green_desc_title "Deploying Heat stack based on template: wordpress_multi_region.yaml"
 green_desc_title "Heat stack will be named: ${NAME}"
-command_desc "heat stack-create $NAME -f wordpress_multi_region.yaml -P=\"key_name=$KEY_NAME;region1=$REGION1;region2=${REGION2}\""
-OUTPUT=`heat stack-create $NAME -f wordpress_multi_region.yaml -P="key_name=$KEY_NAME;region1=$REGION1;region2=$REGION2" 2>&1`
+command_desc "heat stack-create $NAME -f wordpress_multi_region.yaml -P=\"key_name=$KEY_NAME;region1=$REGION1;region2=${REGION2};floating_net_id=${EXT_NET_ID}\""
+OUTPUT=`heat stack-create $NAME -f wordpress_multi_region.yaml -P="key_name=$KEY_NAME;region1=$REGION1;region2=$REGION2;floating_net_id=$EXT_NET_ID" 2>&1`
 echo
 
 echo "$OUTPUT"

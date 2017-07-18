@@ -8,6 +8,15 @@ parameters:
     type: string
     description : Name of a KeyPair to enable SSH access to the instance
 
+  floating_net_id:
+    type: string
+    description: Network ID of external network
+    constraints:
+      - length: { min: 36, max: 36 }
+        description: Network UUID's must be 36 characters long (including dashes)
+      - allowed_pattern: '[a-f0-9\-]*'
+        description: Network UUID's must be composed of hexadecimals and dashes
+
   instance_type:
     type: string
     description: Instance type for web and DB servers
@@ -97,9 +106,10 @@ resources:
       timeout: 60
       parameters:
         key_name: { get_param: key_name }
+        floating_net_id: { get_param: floating_net_id }
         instance_type: { get_param: instance_type }
         db_name: { get_param: db_name }
-        db_username: { get_param: db_username}
+        db_username: { get_param: db_username }
         db_password: { get_param: db_password }
         db_ipaddr: { get_attr: [DBServerStack, outputs, DB_IP] }
 
