@@ -6,7 +6,7 @@ if [ "$#" -ne 2 ]; then
     exit 0
 fi
 
-POSSIBLE_EDGES="EDGE-WT-1 EDGE-YK-1 EDGE-CT-1 EDGE-VC-1"
+POSSIBLE_EDGES="EDGE-WT-1 EDGE-CT-1 EDGE-VC-1"
 
 NAME="$(whoami)"
 NAME=`echo ${NAME} | sed 's/\.//g'`
@@ -30,6 +30,12 @@ done
 if [[ $MATCH == 0 ]]; then
     echo "ERROR: Unknown edge name provided"
     exit 0
+fi
+
+# TEMP WORK-AROUND FOR EDGE-WT-1 FIREWALL REMOVAL ISSUE
+if [[ "${REGION1}" == "EDGE-WT-1" ]]; then
+    REGION2=EDGE-WT-1
+    REGION1=CORE
 fi
 
 EXT_NET_ID=`neutron --os-region-name ${REGION1} net-list | grep ext_net | awk '{print $2}'`
